@@ -231,6 +231,10 @@
 
 /* Payment page */
 
+.adyen-checkout__card__form {
+  display: flex;
+}
+
 #payment-page {
   display: flex;
   flex-direction: column;
@@ -345,3 +349,20 @@
 }
 
 /* end Status page */
+
+
+/*.payment {*/
+/*  display: none;*/
+/*}*/
+.paypal-button.paypal-button-color-gold {
+  background: red !important;
+}
+
+.adyen-checkout__button--pay {
+  background-color: #0abf53;
+  font-weight: 900;
+  border-radius: 0;
+}
+.adyen-checkout__paywithgoogle button {
+  background-color: #0abf53 !important;
+}

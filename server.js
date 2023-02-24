@@ -63,10 +63,10 @@ app.post("/api/sessions", async (req, res) => {
     const orderRef = uuid();
 
     console.log("Received payment request for orderRef: " + orderRef);
-    
+
     // Ideally the data passed here should be computed based on business logic
     const response = await checkout.sessions({
-      countryCode: "NL",
+      // countryCode: "NL",
       amount: { currency: "EUR", value: 10000 }, // value is 100€ in minor units
       reference: orderRef, // required
       merchantAccount: process.env.REACT_APP_ADYEN_MERCHANT_ACCOUNT, // required
@@ -75,7 +75,7 @@ app.post("/api/sessions", async (req, res) => {
       lineItems: [
         {quantity: 1, amountIncludingTax: 5000 , description: "Sunglasses"},
         {quantity: 1, amountIncludingTax: 5000 , description: "Headphones"}
-      ] 
+      ]
     });
 
     // save transaction in memory
@@ -84,7 +84,51 @@ app.post("/api/sessions", async (req, res) => {
       reference: orderRef,
     };
 
+    // console.log('checkout.paymentMethods', checkout.paymentMethodsResponse)
+
     res.json([response, orderRef]); // sending a tuple with orderRef as well to inform about the unique order reference
+  } catch (err) {
+    console.error(`Error: ${err.message}, error code: ${err.errorCode}`);
+    res.status(err.statusCode).json(err.message);
+  }
+});
+
+// get payment methods
+app.post("/api/paymentMethods", async (req, res) => {
+  try {
+    console.log("/api/paymentMethods called");
+
+    // Ideally the data passed here should be computed based on business logic
+    const response = await checkout.paymentMethods({
+      merchantAccount: process.env.REACT_APP_ADYEN_MERCHANT_ACCOUNT, // required
+    });
+
+    res.json(response);
+  } catch (err) {
+    console.error(`Error: ${err.message}, error code: ${err.errorCode}`);
+    res.status(err.statusCode).json(err.message);
+  }
+});
+// get payment methods
+app.post("/api/paymentData", async (req, res) => {
+  try {
+    // unique ref for the transaction
+    const orderRef = uuid();
+
+    console.log("Received payment request for orderRef: " + orderRef);
+    // console.log("/api/paymentData called", req.body);
+
+    // Ideally the data passed here should be computed based on business logic
+    const response = await checkout.payments({
+      merchantAccount: process.env.REACT_APP_ADYEN_MERCHANT_ACCOUNT, // required
+      // STATE_DATA is the paymentMethod field of an object passed from the front end or client app, deserialized from JSON to a data structure.
+      paymentMethod: req.body,
+      amount: { currency: "NOK", value: 1000, },
+      reference: orderRef,
+      returnUrl: `${determineHostUrl(req)}/redirect?orderRef=${orderRef}`, // required for 3ds2 redirect flow
+    });
+
+    res.json([response, orderRef]);
   } catch (err) {
     console.error(`Error: ${err.message}, error code: ${err.errorCode}`);
     res.status(err.statusCode).json(err.message);
@@ -123,7 +167,7 @@ app.post("/api/webhooks/notifications", async (req, res) => {
 
   notificationRequestItems.forEach(({ NotificationRequestItem }) => {
     console.info("Received webhook notification", NotificationRequestItem);
-    
+
     if (validator.validateHMAC(NotificationRequestItem, process.env.REACT_APP_ADYEN_HMAC_KEY)) {
       if (NotificationRequestItem.success === "true") {
         // Process the notification based on the eventCode
@@ -148,7 +192,7 @@ app.post("/api/webhooks/notifications", async (req, res) => {
               payment.status = "Cancelled";
             }
           }
-        } 
+        }
         else {
           console.info("skipping non actionable webhook");
         }
