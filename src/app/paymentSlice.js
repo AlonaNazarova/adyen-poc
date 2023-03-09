@@ -25,8 +25,9 @@ export const slice = createSlice({
           },
         },
       },
+      paymentMethodsResponse: {},
       locale: "en_US",
-      showPayButton: true,
+      // showPayButton: true,
       clientKey: process.env.REACT_APP_ADYEN_CLIENT_KEY,
       environment: "test",
     },
@@ -46,7 +47,8 @@ export const slice = createSlice({
       if (status >= 300) {
         state.error = res;
       } else {
-        state.paymentMethods = res.paymentMethods;
+        state.paymentMethods = res;
+        state.config = { ...state.config, paymentMethodsResponse: res }
       }
     },
     paymentData: (state, action) => {

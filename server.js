@@ -120,10 +120,11 @@ app.post("/api/paymentData", async (req, res) => {
 
     // Ideally the data passed here should be computed based on business logic
     const response = await checkout.payments({
+      // countryCode: "NL",
       merchantAccount: process.env.REACT_APP_ADYEN_MERCHANT_ACCOUNT, // required
       // STATE_DATA is the paymentMethod field of an object passed from the front end or client app, deserialized from JSON to a data structure.
       paymentMethod: req.body,
-      amount: { currency: "NOK", value: 1000, },
+      amount: { currency: "EUR", value: 1000, },
       reference: orderRef,
       returnUrl: `${determineHostUrl(req)}/redirect?orderRef=${orderRef}`, // required for 3ds2 redirect flow
     });

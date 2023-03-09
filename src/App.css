@@ -231,9 +231,9 @@
 
 /* Payment page */
 
-.adyen-checkout__card__form {
-  display: flex;
-}
+/*.adyen-checkout__card__form {*/
+/*  display: flex;*/
+/*}*/
 
 #payment-page {
   display: flex;
